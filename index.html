@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Galería de Imágenes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .image-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .image-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-full">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold text-gray-900 text-center">Mi Galería Personal</h1>
+            <p class="text-gray-600 text-center mt-2">Colección de mis mejores fotografías</p>
+        </div>
+    </header>
+
+    <!-- Galería -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="gallery">
+            <!-- La galería se genera dinámicamente desde la lista de imágenes en la carpeta `imagenes/` -->
+        </div>
+    </main>
+
+    <!-- Modal para vista ampliada -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 modal z-50 hidden items-center justify-center p-4" onclick="closeModal()">
+        <div class="relative">
+            <button onclick="closeModal()" class="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl font-bold z-10">
+                ×
+            </button>
+            <img id="modalImage" src="" alt="" class="modal-image rounded-lg">
+            <div class="text-center mt-4">
+                <h3 id="modalTitle" class="text-white text-xl font-semibold"></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-16">
+        <div class="max-w-6xl mx-auto px-4 py-6 text-center">
+            <p class="text-gray-600">© 2024 Mi Galería Personal. Todas las imágenes son de mi autoría.</p>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(imageSrc, imageTitle) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            modalImage.src = imageSrc;
+            modalImage.alt = imageTitle;
+            modalTitle.textContent = imageTitle;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Prevenir que el modal se cierre al hacer clic en la imagen
+        document.getElementById('modalImage').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // Lista de imágenes detectadas en la carpeta 'imagenes/' (rutas relativas)
+        const imageFiles = [
+            "imagenes/IMG_1983.jpg",
+            "imagenes/LaMentirosa.jpg",
+            "imagenes/LaCosteña.jpg",
+            "imagenes/LaBestia.jpg",
+            "imagenes/kolaroman400.jpg",
+            "imagenes/IMG_1961.jpg",
+            "imagenes/golosapersonal.jpg",
+            "imagenes/golosa.jpg",
+            "imagenes/express.jpg",
+            "imagenes/default.jpg",
+            "imagenes/coronamichelada.jpg",
+            "imagenes/combofantasticweb.jpg",
+            "imagenes/colombiana400.jpg",
+            "imagenes/cocacola400.jpg",
+            "imagenes/Choripapazo.jpg",
+            "imagenes/atrevidapersonal.jpg",
+            "imagenes/atrevida.jpg",
+            "imagenes/armatupizza.jpg",
+            "imagenes/armatualmuerzo.jpg",
+            "imagenes/uva400.jpg",
+            "imagenes/tropical500.jpg",
+            "imagenes/sodasandia.jpg",
+            "imagenes/sodamaracuya.jpg",
+            "imagenes/sodafresa.jpg",
+            "imagenes/royal.jpg",
+            "imagenes/rancher.jpg",
+            "imagenes/quesomozzarella.jpg",
+            "imagenes/pizzapepperoni.jpg",
+            "imagenes/pizzamargarita.jpg",
+            "imagenes/picada.jpg",
+            "imagenes/papasfrancesas.jpg",
+            "imagenes/naranjapiña500.jpg",
+            "imagenes/mora500.jpg",
+            "imagenes/mora.jpg",
+            "imagenes/mister.jpg",
+            "imagenes/michelada.jpg",
+            "imagenes/maracuya.jpg",
+            "imagenes/manzana400.jpg",
+            "imagenes/mama.jpg",
+            "imagenes/lulo.jpg",
+            "imagenes/limon.jpg",
+            "imagenes/LaSalchichera.jpg"
+        ];
+
+        // Función para obtener un título legible a partir del nombre de archivo
+        function titleFromFilename(filename) {
+            const name = filename.split('/').pop();
+            const withoutExt = name.replace(/\.[^/.]+$/, "");
+            // Reemplazar guiones y números comunes por espacios, capitalizar palabras
+            return withoutExt.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // Generar la galería dinámicamente
+        function generateGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            imageFiles.forEach(src => {
+                const title = titleFromFilename(src);
+                const container = document.createElement('div');
+                container.className = 'image-item bg-white rounded-lg overflow-hidden shadow-md cursor-pointer';
+                container.onclick = () => openModal(src, title);
+
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = title;
+                img.className = 'w-full h-64 object-cover';
+
+                const info = document.createElement('div');
+                info.className = 'p-3';
+                const h3 = document.createElement('h3');
+                h3.className = 'font-semibold text-gray-800';
+                h3.textContent = title;
+
+                info.appendChild(h3);
+                container.appendChild(img);
+                container.appendChild(info);
+                gallery.appendChild(container);
+            });
+        }
+
+        // Intentar cargar galería al cargar la página
+        window.addEventListener('DOMContentLoaded', generateGallery);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98ea55683480f7b8',t:'MTc2MDQ3OTA1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
